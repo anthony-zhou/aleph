@@ -21,7 +21,7 @@ defmodule Fin.RBC do
         end
         if Fin.RBCState.get(:vote, v) == @n - @f do
           IO.puts("CONSENSUS REACHED. TIME TO DELIVER #{v}")
-          # Todo: integrate this with round numbers
+          # Todo: integrate this with round numbers from DAG
           # Otherwise RBCState just gets set and never reset.
         end
       {:initial, v} ->
@@ -40,9 +40,9 @@ defmodule Fin.RBC do
     |> Enum.map(fn node -> spawn_task(__MODULE__, :receive_multicast, node, [multicast_msg]) end)
   end
 
-  @spec broadcast(String.t()) :: any()
-  def broadcast(payload) do
-    multicast(%Message{sender: node(), payload: {:initial, payload}})
+  @spec broadcast(Message.t()) :: any()
+  def broadcast(message) do
+    multicast(message)
   end
 
   defp spawn_task(module, fun, recipient, args) do

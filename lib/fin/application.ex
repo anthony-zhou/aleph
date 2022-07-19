@@ -7,7 +7,8 @@ defmodule Fin.Application do
   def start(_type, _args) do
     children = [
       {Task.Supervisor, name: Fin.TaskSupervisor},
-      {Fin.RBCState, %{echo: true, vote: true}}
+      {Fin.RBCState, %{echo: true, vote: true, index: 0}},
+      # DAG
     ]
 
     opts = [strategy: :one_for_one, name: Fin.Supervisor]
