@@ -14,6 +14,13 @@ defmodule RBC.State do
   end
 
   @doc """
+  Clear the state so that we can begin a new round of RBC.
+  """
+  def reset() do
+    Agent.update(T, fn _ -> %{} end)
+  end
+
+  @doc """
   Check if this node already received a proposal from the sender for this round.
   """
   @spec received_propose(pid, non_neg_integer) :: boolean

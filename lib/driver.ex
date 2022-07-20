@@ -5,12 +5,19 @@ defmodule Driver do
 
   def recv(msg) do
     case msg do
+      {:create_unit, data} ->
+        {unit, r} = DAG.Grow.create_unit(data)
+        Driver.Node.multicast(RBC.init_msg(self(), unit, r))
+      {:inspect_dag} ->
+        IO.puts("Here's the DAG")
+        IO.inspect(MyDAG.to_set())
       m -> RBC.recv(m)
     end
   end
 
-  def output(v) do
-    RBC.debug("Output is this message: #{inspect(v)}")
+  def output({r, unit}) do
+    RBC.debug("Output is {#{r}, #{inspect(unit)}}")
+    DAG.Grow.receive_unit(r, unit)
   end
 
   def start() do
@@ -18,8 +25,15 @@ defmodule Driver do
 
     for p <- peers, do: send(p, {:bind, self(), peers})
 
-    # Tell Alice to multicast a message.
-    alice = peers |> List.first()
-    send(alice, {:multicast, RBC.init_msg(alice, DAG.Unit.new(), 0)})
+    # Go round robin and broadcast data to each node
+    for _r <- 0..5 do
+      for p <- peers do
+        Process.sleep(200)
+        # Deliver a message
+        send(p, {:create_unit, "Hey this is a transaction"})
+      end
+    end
+
+    send(List.first(peers), {:inspect_dag})
   end
 end

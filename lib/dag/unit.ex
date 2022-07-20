@@ -3,6 +3,7 @@ defmodule DAG.Unit do
   A unit within the DAG, which contains a creator,
   a list of predecessors, and an optional data payload.
   """
+  @derive Jason.Encoder
 
   alias __MODULE__, as: T
 

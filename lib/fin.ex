@@ -10,17 +10,17 @@ defmodule Fin do
   end
 
 
-  def record_transaction(from, to, amount) do
+  # def record_transaction(from, to, amount) do
 
-  end
+  # end
 
   # def broadcast(message) do
   #   Fin.RBC.broadcast(message)
   # end
 
-  def deliver(message) do
+  # def deliver(message) do
 
-  end
+  # end
 
 
 

@@ -106,10 +106,12 @@ defmodule RBC do
       end
     end
     if RBC.State.get(:commit, r, h) >= 2 * N.f + 1 do
-      RBC.State.get(:prevote, h)
+      unit = RBC.State.get(:prevote, h)
         |> Enum.map(& &1.s)
         |> Crypto.erasure_decode()
-        |> __MODULE__.output()
+      # Before outputting, clear the RBC state.
+      RBC.State.reset()
+      __MODULE__.output({r, unit})
     end
   end
 
