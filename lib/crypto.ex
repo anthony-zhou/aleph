@@ -6,6 +6,7 @@ defmodule Crypto do
   @doc """
   Split a piece of data into n pieces using erasure encoding, given at most m failures.
   For now, we'll just chunk the data evenly.
+  TODO: update this and the decode function to use actual erasure.
   """
   @spec erasure_encode(DAG.Unit.t, non_neg_integer(), non_neg_integer()) :: list(String.t)
   def erasure_encode(unit, _m, n) do
