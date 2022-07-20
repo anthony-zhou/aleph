@@ -3,14 +3,19 @@ defmodule RBC do
   Validated reliable broadcast for the DAG consensus protocol.
   """
   alias Driver.Node, as: N
-
+  use Agent
 
   def debug(msg) do
     IO.puts("[#{inspect(self())}]: #{inspect(msg)}")
   end
 
-  def start() do
+  def start(output_fn) do
     RBC.State.start_link()
+    Agent.start_link(fn -> %{output: output_fn} end, name: __MODULE__)
+  end
+
+  def output(value) do
+    Agent.get(__MODULE__, fn state -> state[:output] end).(value)
   end
 
   def init_msg(sender, m, r) do
@@ -70,6 +75,7 @@ defmodule RBC do
 
     parts = RBC.State.get(:prevote, h)
     # debug(parts)
+    # TODO: wait until all U's parents are locally output by this node.
     # TODO: once we have erasure encoding, change this to ">= 2 * N.f + 1"
     if parts |> MapSet.size() == N.n do
       debug("Received N prevotes.")
@@ -80,10 +86,31 @@ defmodule RBC do
 
       if not RBC.State.has_committed? do
         debug("Time to commit: #{inspect(unit)}")
+        RBC.State.set(:commit, true)
         multicast(N.peers, {:commit, sender, h}, r)
       end
     end
 
+  end
+
+  # TODO: modify this module so that the original sender info is saved.
+  # Currently the sender info doesn't reflect the original sender.
+  def recv({:rbc, sender, {:commit, sender, h}, r}) do
+    RBC.State.increment(:commit, r, h)
+
+    if RBC.State.get(:commit, r, h) == N.f + 1 do
+      if not RBC.State.has_committed?() do
+        debug("Time to commit.")
+        RBC.State.set(:commit, true)
+        multicast(N.peers, {:commit, sender, h}, r)
+      end
+    end
+    if RBC.State.get(:commit, r, h) >= 2 * N.f + 1 do
+      RBC.State.get(:prevote, h)
+        |> Enum.map(& &1.s)
+        |> Crypto.erasure_decode()
+        |> __MODULE__.output()
+    end
   end
 
   def recv(something) do

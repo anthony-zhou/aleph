@@ -4,7 +4,7 @@ defmodule Driver.Node do
 
   alias __MODULE__, as: T
 
-  def start(recv) do
+  def start(recv, output) do
     IO.puts("Started local node at #{self() |> inspect()}")
     receive do
       {:bind, _driver_pid, peers} ->
@@ -14,7 +14,7 @@ defmodule Driver.Node do
           peers: peers
         }
         Agent.start_link(fn -> state end, name: T)
-        Fin.start()
+        Fin.start(output)
         recv_loop(recv)
     end
   end

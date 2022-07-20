@@ -9,8 +9,12 @@ defmodule Driver do
     end
   end
 
+  def output(v) do
+    RBC.debug("Output is this message: #{inspect(v)}")
+  end
+
   def start() do
-    peers = Enum.map(0..4, fn _ -> spawn(Driver.Node, :start, [&recv/1]) end)
+    peers = Enum.map(0..4, fn _ -> spawn(Driver.Node, :start, [&recv/1, &output/1]) end)
 
     for p <- peers, do: send(p, {:bind, self(), peers})
 

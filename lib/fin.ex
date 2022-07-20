@@ -4,8 +4,8 @@
 defmodule Fin do
   @moduledoc false
 
-  def start() do
-    RBC.start()
+  def start(output) do
+    RBC.start(output)
     MyDAG.start_link()
   end
 
