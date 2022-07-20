@@ -4,13 +4,19 @@
 defmodule Fin do
   @moduledoc false
 
+  def start() do
+    RBC.start()
+    MyDAG.start_link()
+  end
+
+
   def record_transaction(from, to, amount) do
 
   end
 
-  def broadcast(message) do
-    Fin.RBC.broadcast(message)
-  end
+  # def broadcast(message) do
+  #   Fin.RBC.broadcast(message)
+  # end
 
   def deliver(message) do
 

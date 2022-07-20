@@ -7,7 +7,7 @@ defmodule Fin.Application do
   def start(_type, _args) do
     children = [
       {Task.Supervisor, name: Fin.TaskSupervisor},
-      {Fin.RBCState, %{echo: true, vote: true, index: 0}},
+      # {Fin.RBCState, %{echo: true, vote: true, index: 0}},
       # DAG
     ]
 

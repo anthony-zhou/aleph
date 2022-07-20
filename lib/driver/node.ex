@@ -14,6 +14,7 @@ defmodule Driver.Node do
           peers: peers
         }
         Agent.start_link(fn -> state end, name: T)
+        Fin.start()
         recv_loop(recv)
     end
   end
@@ -37,7 +38,7 @@ defmodule Driver.Node do
   def n, do: Agent.get(T, & &1.n)
   def f, do: Agent.get(T, & &1.f)
 
-  defp peers() do
+  def peers() do
     Agent.get(T, fn state -> state.peers end)
   end
 

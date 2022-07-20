@@ -16,12 +16,16 @@ defmodule Crypto do
 
     json
       |> Enum.chunk_every(chunk_size)
+      |> Enum.with_index()
+      |> Enum.map(fn {chunk, i} -> "#{i}=#{chunk}" end) # Add an index so order can be recovered later.
   end
 
   @spec erasure_decode(list(list(char))) :: Unit.t
   def erasure_decode(s) do
     m = s
-      |> Enum.reduce(fn (chunk, acc) -> acc ++ chunk end)
+      |> Enum.sort() # Sort based on the chunk index.
+      |> Enum.map(fn (chunk) -> chunk |> String.slice(2..-1) end) # Remove the i= from the beginning.
+      |> Enum.reduce(fn (chunk, acc) -> acc <> chunk end)
       |> to_string()
       |> Jason.decode!()
       |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)

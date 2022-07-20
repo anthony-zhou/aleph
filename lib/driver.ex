@@ -5,7 +5,7 @@ defmodule Driver do
 
   def recv(msg) do
     case msg do
-      m -> IO.puts("Received: #{m}")
+      m -> RBC.recv(m)
     end
   end
 
@@ -16,6 +16,6 @@ defmodule Driver do
 
     # Tell Alice to multicast a message.
     alice = peers |> List.first()
-    send(alice, {:multicast, "Hey"})
+    send(alice, {:multicast, RBC.init_msg(alice, DAG.Unit.new(), 0)})
   end
 end
