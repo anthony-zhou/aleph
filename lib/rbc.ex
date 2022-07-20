@@ -115,11 +115,6 @@ defmodule RBC do
     end
   end
 
-  def recv(something) do
-    # IO.puts("The other recv clauses failed to catch this.")
-    # IO.inspect(something)
-  end
-
   defp multicast(peers, message, r) do
     for p <- peers do
       rbc_send(p, message, r)
