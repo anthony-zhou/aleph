@@ -8,8 +8,6 @@ defmodule DAG.Grow do
       Process.sleep(1000)
       send(self(), {:create_unit, data})
     else
-      N.debug(r)
-      N.debug(MapSet.size(MyDAG.get_units_for_round(r-1)))
       parents = MyDAG.get_my_parents(r)
       unit = DAG.Unit.new(DAG.Creator.myself(), parents, data)
       MyDAG.local_add(r, unit)
