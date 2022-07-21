@@ -14,7 +14,7 @@ defmodule Driver.Node do
           peers: peers
         }
         Agent.start_link(fn -> state end, name: T)
-        Fin.start(output)
+        Aleph.start(output)
         recv_loop(recv)
     end
   end
