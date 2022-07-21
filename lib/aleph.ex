@@ -1,6 +1,5 @@
-defmodule Fin do
+defmodule Aleph do
   @moduledoc false
-
   def start(output) do
     RBC.start(output)
     MyDAG.start_link()

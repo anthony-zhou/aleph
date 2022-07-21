@@ -1,9 +1,9 @@
-defmodule Fin.MixProject do
+defmodule Aleph.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :fin,
+      app: :aleph,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
@@ -17,9 +17,6 @@ defmodule Fin.MixProject do
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
       {:merkle_tree, "~> 1.6.0"},
       {:jason, "~> 1.3"}
-      # {:leo_erasure, github: "leo-project/leo_erasure"}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 end
