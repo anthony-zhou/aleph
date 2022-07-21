@@ -31,7 +31,6 @@ defmodule MyDAG do
     name() |> Agent.get(& &1 |> DAG.get_units_for_round(round))
   end
 
-  # TODO: use the round number `r` to perform a filter by rounds < r.
   def get_my_parents(r) do
     name() |> Agent.get(& &1 |> DAG.get_latest_units(Driver.Node.peers, r))
   end

@@ -59,7 +59,6 @@ defmodule DAG do
 
   @doc """
   Gets the latest unit sent by each node in `nodes`
-  TODO: make sure the round of these units is less than the round `r` of the unit being added.
   """
   def get_latest_units(%T{} = t, nodes, r) do
     nodes
