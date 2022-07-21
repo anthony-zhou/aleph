@@ -22,14 +22,20 @@ defmodule Crypto do
 
   @spec erasure_decode(list(list(char))) :: Unit.t
   def erasure_decode(s) do
-    m = s
-      |> Enum.sort() # Sort based on the chunk index.
+    erasure_decode_with_chunks(s) |> elem(1)
+  end
+
+  @spec erasure_decode_with_chunks(list(list(char))) :: {list(String.t), Unit.t}
+  def erasure_decode_with_chunks(s) do
+    chunks = s
+      |> Enum.sort() # Sort based on the chunk index. Later, this part will do actual interpolation.
+    m = chunks
       |> Enum.map(fn (chunk) -> chunk |> String.slice(2..-1) end) # Remove the i= from the beginning.
       |> Enum.reduce(fn (chunk, acc) -> acc <> chunk end)
       |> to_string()
       |> Jason.decode!()
       |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
 
-    struct(DAG.Unit, m)
+    {chunks, struct(DAG.Unit, m)}
   end
 end

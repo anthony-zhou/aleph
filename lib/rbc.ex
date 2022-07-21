@@ -5,9 +5,6 @@ defmodule RBC do
   alias Driver.Node, as: N
   use Agent
 
-  def debug(msg) do
-    IO.puts("[#{inspect(self())}]: #{inspect(msg)}")
-  end
 
   def start(output_fn) do
     RBC.State.start_link()
@@ -58,7 +55,7 @@ defmodule RBC do
           Process.sleep(1000)
           recv(msg)
         else
-          debug("Received #{s_i}")
+          N.debug("Received #{s_i}")
           # IO.puts("This is node #{inspect(self())}")
           # IO.inspect(s_i)
           multicast(N.peers, {:prevote, h, b_i, s_i}, r)
@@ -71,21 +68,24 @@ defmodule RBC do
   def recv({:rbc, sender, {:prevote, h, b_i, s_i}, r} = msg) do
     # record prevote
     RBC.State.prevote(h, b_i, s_i)
-    # debug("Prevote from #{inspect(sender)}: #{inspect(s_i)}")
+    # N.debug("Prevote from #{inspect(sender)}: #{inspect(s_i)}")
 
     parts = RBC.State.get(:prevote, h)
-    # debug(parts)
+    # N.debug(parts)
     # TODO: wait until all U's parents are locally output by this node.
     # TODO: once we have erasure encoding, change this to ">= 2 * N.f + 1"
     if parts |> MapSet.size() == N.n do
-      debug("Received N prevotes.")
+      N.debug("Received N prevotes.")
       # Reconstruct U from the s parts.
       s = parts |> Enum.map(fn part -> part.s end)
-      unit = Crypto.erasure_decode(s)
-      # TODO: check merkle tree
+      {chunks, unit} = Crypto.erasure_decode_with_chunks(s)
 
-      if not RBC.State.has_committed? do
-        debug("Time to commit: #{inspect(unit)}")
+      # Check merkle tree
+      mt_prime = chunks |> MerkleTree.new(default_data_block: "")
+      h_prime = mt_prime.root.value
+
+      if h == h_prime and not RBC.State.has_committed? do
+        N.debug("Time to commit: #{inspect(unit)}")
         RBC.State.set(:commit, true)
         multicast(N.peers, {:commit, sender, h}, r)
       end
@@ -95,17 +95,18 @@ defmodule RBC do
 
   # TODO: modify this module so that the original sender info is saved.
   # Currently the sender info doesn't reflect the original sender.
-  def recv({:rbc, sender, {:commit, sender, h}, r}) do
+  def recv({:rbc, sender, {:commit, s, h}, r}) do
     RBC.State.increment(:commit, r, h)
-
     if RBC.State.get(:commit, r, h) == N.f + 1 do
       if not RBC.State.has_committed?() do
-        debug("Time to commit.")
+        N.debug("Time to commit.")
         RBC.State.set(:commit, true)
-        multicast(N.peers, {:commit, sender, h}, r)
+        multicast(N.peers, {:commit, s, h}, r)
       end
     end
+
     if RBC.State.get(:commit, r, h) >= 2 * N.f + 1 do
+
       unit = RBC.State.get(:prevote, h)
         |> Enum.map(& &1.s)
         |> Crypto.erasure_decode()
@@ -113,6 +114,10 @@ defmodule RBC do
       RBC.State.reset()
       __MODULE__.output({r, unit})
     end
+  end
+
+  def recv(anything) do
+    IO.inspect(anything)
   end
 
   defp multicast(peers, message, r) do

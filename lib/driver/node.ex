@@ -44,6 +44,10 @@ defmodule Driver.Node do
 
   @spec get_f_from_n(non_neg_integer()) :: non_neg_integer()
   defp get_f_from_n(n) do
-    floor((n - 1) / 3)
+    floor(n / 3)
+  end
+
+  def debug(msg) do
+    IO.puts("[#{inspect(self())}]: #{inspect(msg)}")
   end
 end
