@@ -4,7 +4,7 @@ This is my implementation of the Aleph blockchain in Elixir.
 
 The system, in its curent state, allows you to input transaction data that is replicated in a DAG structure across the nodes.
 
-Note that the system lacks many of Aleph's critical security features. It's more useful to treat this as a simplified proof-of-concept for a DAG-based consensus protocl than as a full-fledged blockchain system. 
+Note that the system lacks many of Aleph's critical security features. It's more useful to treat this as a simplified proof-of-concept for a DAG-based consensus protocol than as a full-fledged blockchain system. 
 
 ## Testing the network
 
